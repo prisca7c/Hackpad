@@ -1,5 +1,4 @@
 # Hackpad
-![A badge of a Cerberus and a raccoon laughing together, with the text "HIGHWAY" and "HACK CLUB" beside them.](https://hc-cdn.hel1.your-objectstorage.com/s/v3/0bbcca68ffa3845300bb76940f8ad91fd53d2d68_06-30-2025-1618.png)
 
 ![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/75ae967e4da1e2e2831ae6dc2363982b24a75013_screenshot_2025-07-06_at_10.50.19___am.png)
 ![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/c16fb42ad5822b43e1b5c67144fcf3d18da33a6f_screenshot_2025-07-03_at_12.34.16___pm.png)
