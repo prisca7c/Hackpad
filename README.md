@@ -8,7 +8,7 @@ AccentBean is a 8 key macropad with a rotary encoder and an OLED Display. It has
 ## PCB
 ![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/8e10bcd23eab8864fc64e5b52788887678444a88_screenshot_2025-07-03_at_12.34.50___pm.png)
 ## Case + Assembly
-![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/299eb1eef5b72348933918918dc24777bc0a6250_screenshot_2025-07-03_at_12.35.14___pm.png))
+![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/299eb1eef5b72348933918918dc24777bc0a6250_screenshot_2025-07-03_at_12.35.14___pm.png)
 
 ## Bill of Materials (BOM)
 - 1x Seeed XIAO RP2040
