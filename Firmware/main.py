@@ -8,29 +8,26 @@ from kmk.modules.rotary_encoder import RotaryEncoderHandler
 from kmk.handlers.sequences import simple_key_sequence
 from kmk.extensions.OLED import OLED, OledDisplayMode, OledReactionType
 
-ROW_PINS = (board.GP0, board.GP1, board.GP2)
-COL_PINS = (board.GP3, board.GP4, board.GP5)
-ENC_PINS = (board.GP10, board.GP11, board.GP12) 
-
+# Keyboard
 kbd = KMKKeyboard()
-kbd.row_pins = ROW_PINS
-kbd.col_pins = COL_PINS
+kbd.row_pins = (board.GP6, board.GP7)  # rows: D4, D1
+kbd.col_pins = (board.GP3, board.GP4, board.GP5)  # cols: SW1-6, SW7-8
 kbd.diode_orientation = kbd.DIODE_COL2ROW
 
-# Encoder
+# Rotary encoder
 enc = RotaryEncoderHandler()
-enc.pins = (ENC_PINS,)
+enc.pins = ((board.GP10, board.GP11, board.GP12),)  # A, B, Switch
 enc.map = (
     (
-        simple_key_sequence((KC.VOLD,)),  
-        simple_key_sequence((KC.VOLU,)),  
-        simple_key_sequence((KC.MUTE,)),  
+        simple_key_sequence((KC.VOLD,)),  # CCW
+        simple_key_sequence((KC.VOLU,)),  # CW
+        simple_key_sequence((KC.MUTE,)),  # Press
     ),
 )
 kbd.modules.append(enc)
 
 # Unicode
-uni = UnicodeMode(mode=UnicodeMode.MAC)     
+uni = UnicodeMode(mode=UnicodeMode.MAC)
 kbd.extensions.append(uni)
 
 # Diacritics
@@ -43,11 +40,11 @@ TILDE  = KC.N6   # SW6
 RING   = KC.N7   # SW7
 SLASH  = KC.N8   # SW8
 
-# Keymap
+# Keymap layout
 kbd.keymap = [[
-    GRAVE,  UMLAUT, KC.NO,   # row 0
-    ACUTE,  CIRC,   RING,    # row 1
-    CEDIL,  TILDE,  SLASH,   # row 2
+    GRAVE,  UMLAUT, KC.NO,
+    ACUTE,  CIRC,   RING,
+    CEDIL,  TILDE,  SLASH,
 ]]
 
 # Combos
@@ -91,25 +88,22 @@ kbd.extensions.append(MediaKeys())
 # OLED
 def draw_oled(oled, keyboard):
     oled.fill(0)
-    oled.text("PriscaPad", 0, 0, 1)
+    oled.text("AccentBean", 0, 0, 1)
     oled.text("Layer: BASE", 0, 8, 1)
-
-    key_hist = keyboard.record.keys_pressed
-    if key_hist:
-        oled.text(f"Key: {key_hist[-1]}", 0, 16, 1)
-
-    enc_state = enc.last_direction 
+    keys = keyboard.record.keys_pressed
+    if keys:
+        oled.text(f"Key: {keys[-1]}", 0, 16, 1)
+    enc_state = enc.last_direction
     if enc_state == -1:
-        oled.text("ENC: CCW", 72, 16, 1)
+        oled.text("ENC: CCW", 70, 16, 1)
     elif enc_state == 1:
-        oled.text("ENC: CW ", 72, 16, 1)
-    elif enc_state == 2: 
+        oled.text("ENC: CW", 70, 16, 1)
+    elif enc_state == 2:
         oled.text("ENC: MUTE", 64, 16, 1)
     oled.show()
 
-
+# Patch encoder press feedback
 _original_handler = enc.handler
-
 def _patched_handler(*args, **kwargs):
     result = _original_handler(*args, **kwargs)
     if enc.switch_state:
@@ -119,11 +113,11 @@ enc.last_direction = 0
 enc.handler = _patched_handler
 
 oled_ext = OLED(
-    OledDisplayMode.BOTH,       
-    flip=False,                 
+    OledDisplayMode.BOTH,
+    flip=False,
     target=None,
-    timeout=0,                  
-    rate=10,               
+    timeout=0,
+    rate=10,
 )
 oled_ext.add_display_callback(OledReactionType.PERIODIC, draw_oled)
 kbd.extensions.append(oled_ext)
@@ -131,5 +125,7 @@ kbd.extensions.append(oled_ext)
 
 
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     kbd.go()
+
