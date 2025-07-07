@@ -1,4 +1,5 @@
-# Hackpad
+# AccentBean
+AccentBean is a 8 key macropad with a rotary encoder and an OLED Display. It has a detachable magnetic OLED case, and uses KMK firmware. The purpose of this macropad is to make typing diacritics easier by holding both letter and accent at the same time. 
 
 ## Overall Hackpad
 ![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/75ae967e4da1e2e2831ae6dc2363982b24a75013_screenshot_2025-07-06_at_10.50.19___am.png)
