@@ -1,133 +1,135 @@
-############################################
-#  KMK macropad: 8‑diacritic chords + audio knob
-############################################
-#  • Hold any letter together with one of the
-#    eight diacritic keys  →  pre‑composed glyph
-#  • EC11 encoder:  CW = volume‑up,
-#                   CCW = volume‑down,
-#                   press = mute
-#
-#  ▸ Adjust the pin lists (row_pins, col_pins, encoder pins)
-#    plus the keymap layout to match your PCB.
-############################################
-
-import board
+import board, time
 from kmk.kmk_keyboard import KMKKeyboard
 from kmk.keys import KC
 from kmk.modules.combos import Combos, Chord
 from kmk.extensions.unicode import UnicodeMode
-from kmk.modules.rotary_encoder import RotaryEncoderHandler
 from kmk.extensions.media_keys import MediaKeys
+from kmk.modules.rotary_encoder import RotaryEncoderHandler
 from kmk.handlers.sequences import simple_key_sequence
+from kmk.extensions.OLED import OLED, OledDisplayMode, OledReactionType
+
+ROW_PINS = (board.GP0, board.GP1, board.GP2)
+COL_PINS = (board.GP3, board.GP4, board.GP5)
+ENC_PINS = (board.GP10, board.GP11, board.GP12) 
 
 kbd = KMKKeyboard()
-
-# ──‑ Matrix wiring (change to suit your build) ─────────────────────────────────
-kbd.row_pins = (board.GP0, board.GP1, board.GP2, board.GP3, board.GP4)
-kbd.col_pins = (board.GP5, board.GP6, board.GP7, board.GP8)
+kbd.row_pins = ROW_PINS
+kbd.col_pins = COL_PINS
 kbd.diode_orientation = kbd.DIODE_COL2ROW
 
-# ──‑ Rotary encoder (EC11) ────────────────────────────────────────────────────
+# Encoder
 enc = RotaryEncoderHandler()
-enc.pins = (
-    (board.GP10, board.GP11, board.GP12),   # (pinA, pinB, switch)
-)
+enc.pins = (ENC_PINS,)
 enc.map = (
     (
-        simple_key_sequence((KC.VOLD,)),     # CCW
-        simple_key_sequence((KC.VOLU,)),     # CW
-        simple_key_sequence((KC.MUTE,)),     # press
+        simple_key_sequence((KC.VOLD,)),  
+        simple_key_sequence((KC.VOLU,)),  
+        simple_key_sequence((KC.MUTE,)),  
     ),
 )
 kbd.modules.append(enc)
 
-# ──‑ Unicode output (pick mode for your OS) ‑──────────────────────────────────
-uni = UnicodeMode(mode=UnicodeMode.MAC)      # MAC / WIN / WIN10 / LINUX
+# Unicode
+uni = UnicodeMode(mode=UnicodeMode.MAC)     
 kbd.extensions.append(uni)
 
-# ──‑ Physical diacritic keys (rename to your liking) ‑─────────────────────────
-GRAVE   = KC.N1     # `
-ACUTE   = KC.N2     # ´
-CEDIL   = KC.N3     # ¸
-UMLAUT  = KC.N4     # ¨
-CIRC    = KC.N5     # ^
-TILDE   = KC.N6     # ~
-RING    = KC.N7     # ˚
-SLASH   = KC.N8     # ˗  (slash overlay)
+# Diacritics
+GRAVE  = KC.N1   # SW1
+ACUTE  = KC.N2   # SW2
+CEDIL  = KC.N3   # SW3
+UMLAUT = KC.N4   # SW4
+CIRC   = KC.N5   # SW5
+TILDE  = KC.N6   # SW6
+RING   = KC.N7   # SW7
+SLASH  = KC.N8   # SW8
 
-# ──‑ Example 5 × 4 keymap (20 keys) ‑──────────────────────────────────────────
-# Row 0:   A  E  I  O
-# Row 1:   U  N  C  S
-# Row 2:   <GRAVE> <ACUTE> <CEDIL> <UMLAUT>
-# Row 3:   <CIRC>  <TILDE> <RING>  <SLASH>
-# Row 4:   (spare) (spare) (spare) (spare)
-keymap = [
-    [KC.A,    KC.E,     KC.I,     KC.O],
-    [KC.U,    KC.N,     KC.C,     KC.S],
-    [GRAVE,   ACUTE,    CEDIL,    UMLAUT],
-    [CIRC,    TILDE,    RING,     SLASH],
-    [KC.NO,   KC.NO,    KC.NO,    KC.NO],
-]
-kbd.keymap = [keymap]
+# Keymap
+kbd.keymap = [[
+    GRAVE,  UMLAUT, KC.NO,   # row 0
+    ACUTE,  CIRC,   RING,    # row 1
+    CEDIL,  TILDE,  SLASH,   # row 2
+]]
 
-# ──‑ Combos: letter + diacritic → Unicode char ‑──────────────────────────────
-def UC(code_hex: str):
-    """Return a KC that types the given Unicode code point."""
-    return KC.UC(int(code_hex, 16))
+# Combos
+def UC(hexstr): return KC.UC(int(hexstr, 16))
 
 combos = Combos()
 kbd.modules.append(combos)
 
 combos.combos = [
-    # ── Acute (´)─────────────────────────────────
-    Chord((KC.A, ACUTE), UC("00E1")),  # á
-    Chord((KC.E, ACUTE), UC("00E9")),  # é
-    Chord((KC.I, ACUTE), UC("00ED")),  # í
-    Chord((KC.O, ACUTE), UC("00F3")),  # ó
-    Chord((KC.U, ACUTE), UC("00FA")),  # ú
-
-    # ── Grave (`)─────────────────────────────────
-    Chord((KC.A, GRAVE), UC("00E0")),  # à
-    Chord((KC.E, GRAVE), UC("00E8")),  # è
-    Chord((KC.I, GRAVE), UC("00EC")),  # ì
-    Chord((KC.O, GRAVE), UC("00F2")),  # ò
-    Chord((KC.U, GRAVE), UC("00F9")),  # ù
-
-    # ── Circumflex (^)────────────────────────────
-    Chord((KC.A, CIRC),  UC("00E2")),  # â
-    Chord((KC.E, CIRC),  UC("00EA")),  # ê
-    Chord((KC.I, CIRC),  UC("00EE")),  # î
-    Chord((KC.O, CIRC),  UC("00F4")),  # ô
-    Chord((KC.U, CIRC),  UC("00FB")),  # û
-
-    # ── Tilde (˜)─────────────────────────────────
-    Chord((KC.N, TILDE), UC("00F1")),  # ñ
-    Chord((KC.A, TILDE), UC("00E3")),  # ã
-    Chord((KC.O, TILDE), UC("00F5")),  # õ
-
-    # ── Umlaut / Diaeresis (¨)────────────────────
-    Chord((KC.A, UMLAUT), UC("00E4")),  # ä
-    Chord((KC.E, UMLAUT), UC("00EB")),  # ë
-    Chord((KC.I, UMLAUT), UC("00EF")),  # ï
-    Chord((KC.O, UMLAUT), UC("00F6")),  # ö
-    Chord((KC.U, UMLAUT), UC("00FC")),  # ü
-
-    # ── Cedilla (¸)───────────────────────────────
-    Chord((KC.C, CEDIL), UC("00E7")),  # ç
-    Chord((KC.S, CEDIL), UC("015F")),  # ş
-    Chord((KC.T, CEDIL), UC("0163")),  # ţ
-
-    # ── Ring (˚)──────────────────────────────────
-    Chord((KC.A, RING),  UC("00E5")),  # å
-    Chord((KC.U, RING),  UC("016F")),  # ů
-
-    # ── Slash / Stroke (˗)────────────────────────
-    Chord((KC.O, SLASH), UC("00F8")),  # ø
-    Chord((KC.L, SLASH), UC("0142")),  # ł
+    # Acute
+    Chord((KC.A, ACUTE), UC("00E1")), Chord((KC.E, ACUTE), UC("00E9")),
+    Chord((KC.I, ACUTE), UC("00ED")), Chord((KC.O, ACUTE), UC("00F3")),
+    Chord((KC.U, ACUTE), UC("00FA")),
+    # Grave
+    Chord((KC.A, GRAVE), UC("00E0")), Chord((KC.E, GRAVE), UC("00E8")),
+    Chord((KC.I, GRAVE), UC("00EC")), Chord((KC.O, GRAVE), UC("00F2")),
+    Chord((KC.U, GRAVE), UC("00F9")),
+    # Circumflex
+    Chord((KC.A, CIRC),  UC("00E2")), Chord((KC.E, CIRC),  UC("00EA")),
+    Chord((KC.I, CIRC),  UC("00EE")), Chord((KC.O, CIRC),  UC("00F4")),
+    Chord((KC.U, CIRC),  UC("00FB")),
+    # Tilde
+    Chord((KC.N, TILDE), UC("00F1")), Chord((KC.A, TILDE), UC("00E3")),
+    Chord((KC.O, TILDE), UC("00F5")),
+    # Umlaut
+    Chord((KC.A, UMLAUT), UC("00E4")), Chord((KC.E, UMLAUT), UC("00EB")),
+    Chord((KC.I, UMLAUT), UC("00EF")), Chord((KC.O, UMLAUT), UC("00F6")),
+    Chord((KC.U, UMLAUT), UC("00FC")),
+    # Cedilla
+    Chord((KC.C, CEDIL), UC("00E7")), Chord((KC.S, CEDIL), UC("015F")),
+    Chord((KC.T, CEDIL), UC("0163")),
+    # Ring
+    Chord((KC.A, RING),  UC("00E5")), Chord((KC.U, RING),  UC("016F")),
+    # Slash
+    Chord((KC.O, SLASH), UC("00F8")), Chord((KC.L, SLASH), UC("0142")),
 ]
 
-# ──‑ Media keys extension is required for VOLU/VOLD/MUTE ‑─────────────────────
+# Encoder keys
 kbd.extensions.append(MediaKeys())
+
+# OLED
+def draw_oled(oled, keyboard):
+    oled.fill(0)
+    oled.text("PriscaPad", 0, 0, 1)
+    oled.text("Layer: BASE", 0, 8, 1)
+
+    key_hist = keyboard.record.keys_pressed
+    if key_hist:
+        oled.text(f"Key: {key_hist[-1]}", 0, 16, 1)
+
+    enc_state = enc.last_direction 
+    if enc_state == -1:
+        oled.text("ENC: CCW", 72, 16, 1)
+    elif enc_state == 1:
+        oled.text("ENC: CW ", 72, 16, 1)
+    elif enc_state == 2: 
+        oled.text("ENC: MUTE", 64, 16, 1)
+    oled.show()
+
+
+_original_handler = enc.handler
+
+def _patched_handler(*args, **kwargs):
+    result = _original_handler(*args, **kwargs)
+    if enc.switch_state:
+        enc.last_direction = 2
+    return result
+enc.last_direction = 0
+enc.handler = _patched_handler
+
+oled_ext = OLED(
+    OledDisplayMode.BOTH,       
+    flip=False,                 
+    target=None,
+    timeout=0,                  
+    rate=10,               
+)
+oled_ext.add_display_callback(OledReactionType.PERIODIC, draw_oled)
+kbd.extensions.append(oled_ext)
+
+
+
 
 if __name__ == "__main__":
     kbd.go()
