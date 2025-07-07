@@ -1,7 +1,7 @@
 # Hackpad
 
 # Features
-
+- Seeed XIAO RP2040
 
 
 ![img](https://hc-cdn.hel1.your-objectstorage.com/s/v3/75ae967e4da1e2e2831ae6dc2363982b24a75013_screenshot_2025-07-06_at_10.50.19___am.png)
